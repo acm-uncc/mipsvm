@@ -7,6 +7,8 @@ Run this command on the command line clone the repo.
 
 ## To add a new feature
 
+- git branch (your name)
+- git checkout (your name)
 - Find a instruction [here](https://s3-eu-west-1.amazonaws.com/downloads-mips/documents/MD00086-2B-MIPS32BIS-AFP-6.06.pdf) that is not already implemented (or pick one from our list)
 - Identify instruction layout
 - Create function with op_ + function name
@@ -20,4 +22,11 @@ Run this command on the command line clone the repo.
 - Look thorough enum of OP_TYPE
 - Go to op_types array and find the opcode of your function
 - Replace UNIMPLEMENTED with OP_TYPE
-- Your feature is done :)
+- git push origin master
+- Go to the repository then the Pull requests tab
+- Hit new pull request
+- Select your branch
+- Create pull request and mention which instruction you did in the title
+
+## Questions?
+Please ask in the ACM Discord if you have any questions.
