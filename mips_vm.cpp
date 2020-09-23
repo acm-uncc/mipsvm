@@ -76,12 +76,18 @@ public:
    }
 };
 
+// Add functions here
+
 void op_special(MIPS32_VM& vm, uns rs, uns rt, uns rd, uns sa, uns function) {
    std::cout << rs << " " << rt << " " << rd << " " << sa << " " << function << std::endl;
 }
 
 void op_addiu(MIPS32_VM& vm, uns rs, uns rt, uns immediate) {
    vm.GPR[rt] = vm.GPR[rs] + immediate;   
+}
+
+void op_andi(MIPS32_VM& vm, uns rs, uns rt, uns immediate) {
+   vm.GRP[rt] = vm.GRP[rs] & immediate;
 }
 
 OP MIPS32_VM::op_handlers[64] = {
@@ -97,7 +103,7 @@ OP MIPS32_VM::op_handlers[64] = {
    reinterpret_cast<OP>(op_addiu), // 001001
    nullptr, // 001010
    nullptr, // 001011
-   nullptr, // 001100
+   reinterpret_cast<OP>(op_andi), // 001100
    nullptr, // 001101
    nullptr, // 001110
    nullptr, // 001111
@@ -164,7 +170,7 @@ OP_TYPE MIPS32_VM::op_types[64] = {
    I_type, // 001001
    UNIMPLEMENTED, // 001010
    UNIMPLEMENTED, // 001011
-   UNIMPLEMENTED, // 001100
+   I_type, // 001100
    UNIMPLEMENTED, // 001101
    UNIMPLEMENTED, // 001110
    UNIMPLEMENTED, // 001111
