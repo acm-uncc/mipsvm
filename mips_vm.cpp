@@ -167,7 +167,7 @@ void op_special(MIPS32_VM& vm, uns rs, uns rt, uns rd, uns sa, uns function) {
 
 // For any instruction with the SPECIAL opcode (000000), implement the function
 // as follows (as an example is the ADD instruction. sa is not used, so it is
-// ignored).
+// ignored). The arguments for any special function should be as below.
 void special_add(MIPS32_VM& vm, uns rs, uns rt, uns rd, uns sa) {
    vm.GPR[rd] = vm.GPR[rs] + vm.GPR[rd];
 }
