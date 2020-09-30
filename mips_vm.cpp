@@ -31,8 +31,8 @@ enum OP_TYPE {
 
 struct MIPS32_VM {
 protected:
-   static OP op_handlers[64];
-   static OP_TYPE op_types[64];
+   static const OP op_handlers[64];
+   static const OP_TYPE op_types[64];
 
 public:
    void execute(uns inst) {
@@ -140,6 +140,7 @@ public:
    uns memsize;
 
    MIPS32_VM(uns memsize = 0) {
+
    }
 };
 
@@ -150,7 +151,7 @@ public:
 typedef void(*SPECIAL_FUNC)(MIPS32_VM&, uns, uns, uns, uns);
 
 struct Special_Registry {
-   static SPECIAL_FUNC func_handlers[64];
+   static const SPECIAL_FUNC func_handlers[64];
 
    SPECIAL_FUNC get(uns num) {
       return func_handlers[num];
@@ -177,7 +178,7 @@ void special_add(MIPS32_VM& vm, uns rs, uns rt, uns rd, uns sa) {
 // Put the name of the function implemented on the line corresponding to the
 // binary value of the LAST section in the instruction below. ADD has been
 // placed already
-SPECIAL_FUNC Special_Registry::func_handlers[] = {
+const SPECIAL_FUNC Special_Registry::func_handlers[] = {
    nullptr, // 000000
    nullptr, // 000001
    nullptr, // 000010
@@ -254,7 +255,7 @@ void op_addiu(MIPS32_VM& vm, uns rs, uns rt, uns immediate) {
 
 // Opcode registration
 
-OP MIPS32_VM::op_handlers[] = {
+const OP MIPS32_VM::op_handlers[] = {
    reinterpret_cast<OP>(op_special), // 000000
    nullptr, // 000001
    nullptr, // 000010
@@ -321,7 +322,7 @@ OP MIPS32_VM::op_handlers[] = {
    nullptr, // 111111
 };
 
-OP_TYPE MIPS32_VM::op_types[] = {
+const OP_TYPE MIPS32_VM::op_types[] = {
    R_Type, // 000000
    UNIMPLEMENTED, // 000001
    UNIMPLEMENTED, // 000010
