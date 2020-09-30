@@ -261,6 +261,10 @@ void op_andi(MIPS32_VM& vm, uns rs, uns rt, uns immediate) {
    vm.GRP[rt] = vm.GRP[rs] & immediate;
 }
 
+void op_xori(MIPS32_VM& vm, uns rs, uns rt, uns immediate) {
+   vm.GPR[rt] = vm.GPR[rs] ^ immediate;
+}
+
 const OP MIPS32_VM::op_handlers[] = {
    reinterpret_cast<OP>(op_special), // 000000
    nullptr, // 000001
@@ -276,7 +280,7 @@ const OP MIPS32_VM::op_handlers[] = {
    nullptr, // 001011
    reinterpret_cast<OP>(op_andi), // 001100
    nullptr, // 001101
-   nullptr, // 001110
+   reinterpret_cast<OP>(op_xori), // 001110
    nullptr, // 001111
    nullptr, // 010000
    nullptr, // 010001
@@ -343,7 +347,7 @@ const OP_TYPE MIPS32_VM::op_types[] = {
    UNIMPLEMENTED, // 001011
    I_type, // 001100
    UNIMPLEMENTED, // 001101
-   UNIMPLEMENTED, // 001110
+   I_Type, // 001110
    UNIMPLEMENTED, // 001111
    UNIMPLEMENTED, // 010000
    UNIMPLEMENTED, // 010001
