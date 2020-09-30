@@ -134,7 +134,7 @@ public:
       }
    }
 
-   int GPR[32];
+   uns GPR[32];
    int PC;
    byte* MEM;
    uns memsize;
@@ -170,11 +170,11 @@ void op_special(MIPS32_VM& vm, uns rs, uns rt, uns rd, uns sa, uns function) {
 // as follows (as an example is the ADD instruction. sa is not used, so it is
 // ignored). The arguments for any special function should be as below.
 void special_add(MIPS32_VM& vm, uns rs, uns rt, uns rd, uns sa) {
-   vm.GPR[rd] = vm.GPR[rs] + vm.GPR[rt];
+   vm.GPR[rd] = static_cast<uns>(static_cast<int>(vm.GPR[rs]) + static_cast<int>(vm.GPR[rt]));
 }
 
 void special_sub(MIPS32_VM& vm, uns rs, uns rt, uns rd, uns sa) {
-   vm.GPR[rd] = vm.GPR[rs] - vm.GPR[rt];
+   vm.GPR[rd] = static_cast<uns>(static_cast<int>(vm.GPR[rs]) - static_cast<int>(vm.GPR[rt]));
 }
 
 // Special function registration
