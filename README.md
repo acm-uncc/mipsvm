@@ -29,17 +29,12 @@ Run this command on the command line clone the repo.
 - Create pull request and mention which instruction you did in the title
 
 ## Simple New Instructions
-- ADD
-- SUB
 - MULT
 - DIV
 - AND
 - OR
 - SLL
 - SRL
-- LW
-- SW
-
 
 ## Questions?
 Please ask in the ACM Discord if you have any questions.
