@@ -177,13 +177,16 @@ void special_sub(MIPS32_VM& vm, uns rs, uns rt, uns rd, uns sa) {
    vm.GPR[rd] = static_cast<uns>(static_cast<int>(vm.GPR[rs]) - static_cast<int>(vm.GPR[rt]));
 }
 
+void special_mult(MIP32_VM& vm, uns rs, uns rt, uns rd, uns sa) {
+   vm.GPR[rd] = static_cast<uns>(static_cast<int>(vm.GPR[rs]) * static_cast<int>(vm.GPR[rt]));
+   }
 // Special function registration
 
 // Put the name of the function implemented on the line corresponding to the
 // binary value of the LAST section in the instruction below. ADD has been
 // placed already
 const SPECIAL_FUNC Special_Registry::func_handlers[] = {
-   nullptr, // 000000
+   special_mult, // 000000
    nullptr, // 000001
    nullptr, // 000010
    nullptr, // 000011
