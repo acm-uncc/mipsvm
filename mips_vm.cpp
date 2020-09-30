@@ -164,8 +164,13 @@ public:
       MEM[addr] = b;
    }
 
-   MIPS32_VM(uns memsize = 0) {
+   MIPS32_VM(uns memsize = 1024) {
+      GPR[0] = 0;
+      MEM = new byte[memsize];
+   }
 
+   ~MIPS32_VM() {
+      delete[] MEM;
    }
 };
 
@@ -186,7 +191,10 @@ struct Special_Registry {
 Special_Registry special_reg;
 
 void op_special(MIPS32_VM& vm, uns rs, uns rt, uns rd, uns sa, uns function) {
-   special_reg.get(function)(vm,rs,rt,rd,sa);
+   auto func = special_reg.get(function);
+   if (func == nullptr)
+      return;
+   func(vm,rs,rt,rd,sa);
 }
 
 // Special function implementation
@@ -286,7 +294,7 @@ void op_andi(MIPS32_VM& vm, uns rs, uns rt, uns immediate) {
    vm.GPR[rt] = vm.GPR[rs] & immediate;
 }
 
-void op_lh(MIPS32_VM& vm, uns base, uns, rt, uns offset) {
+void op_lh(MIPS32_VM& vm, uns base, uns rt, uns offset) {
    // Casting to short then uns causes sign-extension
    vm.GPR[rt] = static_cast<uns>(static_cast<short>(vm.get_half(vm.GPR[base] + offset))); 
 }
@@ -425,7 +433,13 @@ const OP_TYPE MIPS32_VM::op_types[] = {
    UNIMPLEMENTED, // 111111
 };
 
+// Test load halfword operation (successful)
 int main() {
    MIPS32_VM vm;
-   vm.execute(4);
+   vm.MEM[4] = 0;
+   vm.MEM[5] = 1;
+   // GPR[1] = MEM[4] as halfword
+   vm.execute(0b10000100000000010000000000000100);
+   // Should print 256
+   std::cout << (int)vm.GPR[1] << std::endl;
 }
