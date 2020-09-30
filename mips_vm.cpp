@@ -2,6 +2,7 @@
 
 typedef unsigned char byte;
 typedef unsigned int uns;
+typedef unsigned short half;
 
 struct MIPS32_VM;
 
@@ -134,10 +135,34 @@ public:
       }
    }
 
-   int GPR[32];
+   uns GPR[32];
    int PC;
    byte* MEM;
    uns memsize;
+
+   inline uns get_word(uns addr) {
+      return *reinterpret_cast<uns*>(&MEM[addr&0xFFFFFFFC]);
+   }
+
+   inline half get_half(uns addr) {
+      return *reinterpret_cast<half*>(&MEM[addr&0xFFFFFFFE]);
+   }
+
+   inline byte get_byte(uns addr) {
+      return MEM[addr];
+   }
+
+   inline void set_word(uns addr, uns w) {
+      *reinterpret_cast<uns*>(&MEM[addr&0xFFFFFFFC]) = w;
+   }
+
+   inline void set_half(uns addr, half h) {
+      *reinterpret_cast<half*>(&MEM[addr&0xFFFFFFFE]) = h;
+   }
+
+   inline void set_byte(uns addr, byte b) {
+      MEM[addr] = b;
+   }
 
    MIPS32_VM(uns memsize = 0) {
 
@@ -170,11 +195,11 @@ void op_special(MIPS32_VM& vm, uns rs, uns rt, uns rd, uns sa, uns function) {
 // as follows (as an example is the ADD instruction. sa is not used, so it is
 // ignored). The arguments for any special function should be as below.
 void special_add(MIPS32_VM& vm, uns rs, uns rt, uns rd, uns sa) {
-   vm.GPR[rd] = vm.GPR[rs] + vm.GPR[rt];
+   vm.GPR[rd] = static_cast<uns>(static_cast<int>(vm.GPR[rs]) + static_cast<int>(vm.GPR[rt]));
 }
 
 void special_sub(MIPS32_VM& vm, uns rs, uns rt, uns rd, uns sa) {
-   vm.GPR[rd] = vm.GPR[rs] - vm.GPR[rt];
+   vm.GPR[rd] = static_cast<uns>(static_cast<int>(vm.GPR[rs]) - static_cast<int>(vm.GPR[rt]));
 }
 
 // Special function registration
@@ -261,6 +286,15 @@ void op_ori(MIPS32_VM& vm, int rs, int rt) {
    vm.GPR[rt] = vm.GPR[RS] | vm.GPR[rt];
 }
 
+void op_andi(MIPS32_VM& vm, uns rs, uns rt, uns immediate) {
+   vm.GPR[rt] = vm.GPR[rs] & immediate;
+}
+
+void op_lh(MIPS32_VM& vm, uns base, uns, rt, uns offset) {
+   // Casting to short then uns causes sign-extension
+   vm.GPR[rt] = static_cast<uns>(static_cast<short>(vm.get_half(vm.GPR[base] + offset))); 
+}
+
 // Opcode registration
 
 const OP MIPS32_VM::op_handlers[] = {
@@ -276,7 +310,7 @@ const OP MIPS32_VM::op_handlers[] = {
    reinterpret_cast<OP>(op_addiu), // 001001
    nullptr, // 001010
    nullptr, // 001011
-   nullptr, // 001100
+   reinterpret_cast<OP>(op_andi), // 001100
    reinterpret_cast<OP>(op_ori), // 001101
    nullptr, // 001110
    nullptr, // 001111
@@ -297,7 +331,7 @@ const OP MIPS32_VM::op_handlers[] = {
    nullptr, // 011110
    nullptr, // 011111
    nullptr, // 100000
-   nullptr, // 100001
+   reinterpret_cast<OP>(op_lh), // 100001
    nullptr, // 100010
    nullptr, // 100011
    nullptr, // 100100
@@ -343,7 +377,7 @@ const OP_TYPE MIPS32_VM::op_types[] = {
    I_Type,        // 001001
    UNIMPLEMENTED, // 001010
    UNIMPLEMENTED, // 001011
-   UNIMPLEMENTED, // 001100
+   I_Type, // 001100
    I_Type,        // 001101
    UNIMPLEMENTED, // 001110
    UNIMPLEMENTED, // 001111
@@ -364,7 +398,7 @@ const OP_TYPE MIPS32_VM::op_types[] = {
    UNIMPLEMENTED, // 011110
    UNIMPLEMENTED, // 011111
    UNIMPLEMENTED, // 100000
-   UNIMPLEMENTED, // 100001
+   I_Type,        // 100001
    UNIMPLEMENTED, // 100010
    UNIMPLEMENTED, // 100011
    UNIMPLEMENTED, // 100100
