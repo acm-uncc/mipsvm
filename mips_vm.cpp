@@ -170,7 +170,11 @@ void op_special(MIPS32_VM& vm, uns rs, uns rt, uns rd, uns sa, uns function) {
 // as follows (as an example is the ADD instruction. sa is not used, so it is
 // ignored). The arguments for any special function should be as below.
 void special_add(MIPS32_VM& vm, uns rs, uns rt, uns rd, uns sa) {
-   vm.GPR[rd] = vm.GPR[rs] + vm.GPR[rd];
+   vm.GPR[rd] = vm.GPR[rs] + vm.GPR[rt];
+}
+
+void special_sub(MIPS32_VM& vm, uns rs, uns rt, uns rd, uns sa) {
+   vm.GPR[rd] = vm.GPR[rs] - vm.GPR[rt];
 }
 
 // Special function registration
@@ -213,7 +217,7 @@ const SPECIAL_FUNC Special_Registry::func_handlers[] = {
    nullptr, // 011111
    special_add, // 100000
    nullptr, // 100001
-   nullptr, // 100010
+   special_sub, // 100010
    nullptr, // 100011
    nullptr, // 100100
    nullptr, // 100101
