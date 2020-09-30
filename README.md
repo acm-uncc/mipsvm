@@ -35,6 +35,8 @@ Run this command on the command line clone the repo.
 - OR
 - SLL
 - SRL
+- XORI
+- ORI
 
 ## Questions?
 Please ask in the ACM Discord if you have any questions.
