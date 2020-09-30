@@ -282,6 +282,10 @@ void op_addiu(MIPS32_VM& vm, uns rs, uns rt, uns immediate) {
    vm.GPR[rt] = vm.GPR[rs] + immediate;
 }
 
+void op_ori(MIPS32_VM& vm, int rs, int rt) {
+   vm.GPR[rt] = vm.GPR[RS] | vm.GPR[rt];
+}
+
 void op_andi(MIPS32_VM& vm, uns rs, uns rt, uns immediate) {
    vm.GPR[rt] = vm.GPR[rs] & immediate;
 }
@@ -290,6 +294,8 @@ void op_lh(MIPS32_VM& vm, uns base, uns, rt, uns offset) {
    // Casting to short then uns causes sign-extension
    vm.GPR[rt] = static_cast<uns>(static_cast<short>(vm.get_half(vm.GPR[base] + offset))); 
 }
+
+// Opcode registration
 
 const OP MIPS32_VM::op_handlers[] = {
    reinterpret_cast<OP>(op_special), // 000000
@@ -305,7 +311,7 @@ const OP MIPS32_VM::op_handlers[] = {
    nullptr, // 001010
    nullptr, // 001011
    reinterpret_cast<OP>(op_andi), // 001100
-   nullptr, // 001101
+   reinterpret_cast<OP>(op_ori), // 001101
    nullptr, // 001110
    nullptr, // 001111
    nullptr, // 010000
@@ -359,7 +365,7 @@ const OP MIPS32_VM::op_handlers[] = {
 };
 
 const OP_TYPE MIPS32_VM::op_types[] = {
-   R_Type, // 000000
+   R_Type,        // 000000
    UNIMPLEMENTED, // 000001
    UNIMPLEMENTED, // 000010
    UNIMPLEMENTED, // 000011
@@ -371,8 +377,8 @@ const OP_TYPE MIPS32_VM::op_types[] = {
    I_Type,        // 001001
    UNIMPLEMENTED, // 001010
    UNIMPLEMENTED, // 001011
-   I_Type,        // 001100
-   UNIMPLEMENTED, // 001101
+   I_Type, // 001100
+   I_Type,        // 001101
    UNIMPLEMENTED, // 001110
    UNIMPLEMENTED, // 001111
    UNIMPLEMENTED, // 010000
