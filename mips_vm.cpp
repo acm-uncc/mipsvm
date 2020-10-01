@@ -178,7 +178,7 @@ void special_sub(MIPS32_VM& vm, uns rs, uns rt, uns rd, uns sa) {
 }
 
 void special_xor(MIPS32_VM& vm, uns rs, uns rt, uns rd, uns sa) {
-   vm.GPR[rd] = static_cast<uns>(static_cast<int>(vm.GPR[rs]) ^ static_cast<int>(vm.GPR[rt]));
+   vm.GPR[rd] = vm.GPR[rs] ^ vm.GPR[rt];
 }
 
 // Special function registration
