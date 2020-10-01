@@ -2,6 +2,7 @@
 
 typedef unsigned char byte;
 typedef unsigned int uns;
+typedef unsigned short half;
 
 struct MIPS32_VM;
 
@@ -139,8 +140,37 @@ public:
    byte* MEM;
    uns memsize;
 
-   MIPS32_VM(uns memsize = 0) {
+   inline uns get_word(uns addr) {
+      return *reinterpret_cast<uns*>(&MEM[addr&0xFFFFFFFC]);
+   }
 
+   inline half get_half(uns addr) {
+      return *reinterpret_cast<half*>(&MEM[addr&0xFFFFFFFE]);
+   }
+
+   inline byte get_byte(uns addr) {
+      return MEM[addr];
+   }
+
+   inline void set_word(uns addr, uns w) {
+      *reinterpret_cast<uns*>(&MEM[addr&0xFFFFFFFC]) = w;
+   }
+
+   inline void set_half(uns addr, half h) {
+      *reinterpret_cast<half*>(&MEM[addr&0xFFFFFFFE]) = h;
+   }
+
+   inline void set_byte(uns addr, byte b) {
+      MEM[addr] = b;
+   }
+
+   MIPS32_VM(uns memsize = 1024) {
+      GPR[0] = 0;
+      MEM = new byte[memsize];
+   }
+
+   ~MIPS32_VM() {
+      delete[] MEM;
    }
 };
 
@@ -161,7 +191,10 @@ struct Special_Registry {
 Special_Registry special_reg;
 
 void op_special(MIPS32_VM& vm, uns rs, uns rt, uns rd, uns sa, uns function) {
-   special_reg.get(function)(vm,rs,rt,rd,sa);
+   auto func = special_reg.get(function);
+   if (func == nullptr)
+      return;
+   func(vm,rs,rt,rd,sa);
 }
 
 // Special function implementation
@@ -261,13 +294,24 @@ void op_addiu(MIPS32_VM& vm, uns rs, uns rt, uns immediate) {
    vm.GPR[rt] = vm.GPR[rs] + immediate;
 }
 
+void op_ori(MIPS32_VM& vm, int rs, int rt) {
+   vm.GPR[rt] = vm.GPR[RS] | vm.GPR[rt];
+}
+
 void op_andi(MIPS32_VM& vm, uns rs, uns rt, uns immediate) {
-   vm.GRP[rt] = vm.GRP[rs] & immediate;
+   vm.GPR[rt] = vm.GPR[rs] & immediate;
 }
 
 void op_xori(MIPS32_VM& vm, uns rs, uns rt, uns immediate) {
    vm.GPR[rt] = vm.GPR[rs] ^ immediate;
 }
+
+void op_lh(MIPS32_VM& vm, uns base, uns rt, uns offset) {
+   // Casting to short then uns causes sign-extension
+   vm.GPR[rt] = static_cast<uns>(static_cast<short>(vm.get_half(vm.GPR[base] + offset))); 
+}
+
+// Opcode registration
 
 const OP MIPS32_VM::op_handlers[] = {
    reinterpret_cast<OP>(op_special), // 000000
@@ -283,7 +327,7 @@ const OP MIPS32_VM::op_handlers[] = {
    nullptr, // 001010
    nullptr, // 001011
    reinterpret_cast<OP>(op_andi), // 001100
-   nullptr, // 001101
+   reinterpret_cast<OP>(op_ori), // 001101
    reinterpret_cast<OP>(op_xori), // 001110
    nullptr, // 001111
    nullptr, // 010000
@@ -303,7 +347,7 @@ const OP MIPS32_VM::op_handlers[] = {
    nullptr, // 011110
    nullptr, // 011111
    nullptr, // 100000
-   nullptr, // 100001
+   reinterpret_cast<OP>(op_lh), // 100001
    nullptr, // 100010
    nullptr, // 100011
    nullptr, // 100100
@@ -337,7 +381,7 @@ const OP MIPS32_VM::op_handlers[] = {
 };
 
 const OP_TYPE MIPS32_VM::op_types[] = {
-   R_Type, // 000000
+   R_Type,        // 000000
    UNIMPLEMENTED, // 000001
    UNIMPLEMENTED, // 000010
    UNIMPLEMENTED, // 000011
@@ -346,12 +390,12 @@ const OP_TYPE MIPS32_VM::op_types[] = {
    UNIMPLEMENTED, // 000110
    UNIMPLEMENTED, // 000111
    UNIMPLEMENTED, // 001000
-   I_Type, // 001001
+   I_Type,        // 001001
    UNIMPLEMENTED, // 001010
    UNIMPLEMENTED, // 001011
-   I_type, // 001100
-   UNIMPLEMENTED, // 001101
-   I_Type, // 001110
+   I_Type,        // 001100
+   I_Type,        // 001101
+   I_Type,        // 001110
    UNIMPLEMENTED, // 001111
    UNIMPLEMENTED, // 010000
    UNIMPLEMENTED, // 010001
@@ -370,7 +414,7 @@ const OP_TYPE MIPS32_VM::op_types[] = {
    UNIMPLEMENTED, // 011110
    UNIMPLEMENTED, // 011111
    UNIMPLEMENTED, // 100000
-   UNIMPLEMENTED, // 100001
+   I_Type,        // 100001
    UNIMPLEMENTED, // 100010
    UNIMPLEMENTED, // 100011
    UNIMPLEMENTED, // 100100
@@ -403,7 +447,13 @@ const OP_TYPE MIPS32_VM::op_types[] = {
    UNIMPLEMENTED, // 111111
 };
 
+// Test load halfword operation (successful)
 int main() {
    MIPS32_VM vm;
-   vm.execute(4);
+   vm.MEM[4] = 0;
+   vm.MEM[5] = 1;
+   // GPR[1] = MEM[4] as halfword
+   vm.execute(0b10000100000000010000000000000100);
+   // Should print 256
+   std::cout << (int)vm.GPR[1] << std::endl;
 }
