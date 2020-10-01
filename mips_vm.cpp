@@ -210,76 +210,80 @@ void special_sub(MIPS32_VM& vm, uns rs, uns rt, uns rd, uns sa) {
    vm.GPR[rd] = static_cast<uns>(static_cast<int>(vm.GPR[rs]) - static_cast<int>(vm.GPR[rt]));
 }
 
+void special_xor(MIPS32_VM& vm, uns rs, uns rt, uns rd, uns sa) {
+   vm.GPR[rd] = vm.GPR[rs] ^ vm.GPR[rt];
+}
+
 // Special function registration
 
 // Put the name of the function implemented on the line corresponding to the
 // binary value of the LAST section in the instruction below. ADD has been
 // placed already
 const SPECIAL_FUNC Special_Registry::func_handlers[] = {
-   nullptr, // 000000
-   nullptr, // 000001
-   nullptr, // 000010
-   nullptr, // 000011
-   nullptr, // 000100
-   nullptr, // 000101
-   nullptr, // 000110
-   nullptr, // 000111
-   nullptr, // 001000
-   nullptr, // 001001
-   nullptr, // 001010
-   nullptr, // 001011
-   nullptr, // 001100
-   nullptr, // 001101
-   nullptr, // 001110
-   nullptr, // 001111
-   nullptr, // 010000
-   nullptr, // 010001
-   nullptr, // 010010
-   nullptr, // 010011
-   nullptr, // 010100
-   nullptr, // 010101
-   nullptr, // 010110
-   nullptr, // 010111
-   nullptr, // 011000
-   nullptr, // 011001
-   nullptr, // 011010
-   nullptr, // 011011
-   nullptr, // 011100
-   nullptr, // 011101
-   nullptr, // 011110
-   nullptr, // 011111
-   special_add, // 100000
-   nullptr, // 100001
-   special_sub, // 100010
-   nullptr, // 100011
-   nullptr, // 100100
-   nullptr, // 100101
-   nullptr, // 100110
-   nullptr, // 100111
-   nullptr, // 101000
-   nullptr, // 101001
-   nullptr, // 101010
-   nullptr, // 101011
-   nullptr, // 101100
-   nullptr, // 101101
-   nullptr, // 101110
-   nullptr, // 101111
-   nullptr, // 110000
-   nullptr, // 110001
-   nullptr, // 110010
-   nullptr, // 110011
-   nullptr, // 110100
-   nullptr, // 110101
-   nullptr, // 110110
-   nullptr, // 110111
-   nullptr, // 111000
-   nullptr, // 111001
-   nullptr, // 111010
-   nullptr, // 111011
-   nullptr, // 111100
-   nullptr, // 111101
-   nullptr, // 111110
-   nullptr, // 111111
+    nullptr,     // 000000
+    nullptr,     // 000001
+    nullptr,     // 000010
+    nullptr,     // 000011
+    nullptr,     // 000100
+    nullptr,     // 000101
+    nullptr,     // 000110
+    nullptr,     // 000111
+    nullptr,     // 001000
+    nullptr,     // 001001
+    nullptr,     // 001010
+    nullptr,     // 001011
+    nullptr,     // 001100
+    nullptr,     // 001101
+    nullptr,     // 001110
+    nullptr,     // 001111
+    nullptr,     // 010000
+    nullptr,     // 010001
+    nullptr,     // 010010
+    nullptr,     // 010011
+    nullptr,     // 010100
+    nullptr,     // 010101
+    nullptr,     // 010110
+    nullptr,     // 010111
+    nullptr,     // 011000
+    nullptr,     // 011001
+    nullptr,     // 011010
+    nullptr,     // 011011
+    nullptr,     // 011100
+    nullptr,     // 011101
+    nullptr,     // 011110
+    nullptr,     // 011111
+    special_add, // 100000
+    nullptr,     // 100001
+    special_sub, // 100010
+    nullptr,     // 100011
+    nullptr,     // 100100
+    nullptr,     // 100101
+    special_xor, // 100110
+    nullptr,     // 100111
+    nullptr,     // 101000
+    nullptr,     // 101001
+    nullptr,     // 101010
+    nullptr,     // 101011
+    nullptr,     // 101100
+    nullptr,     // 101101
+    nullptr,     // 101110
+    nullptr,     // 101111
+    nullptr,     // 110000
+    nullptr,     // 110001
+    nullptr,     // 110010
+    nullptr,     // 110011
+    nullptr,     // 110100
+    nullptr,     // 110101
+    nullptr,     // 110110
+    nullptr,     // 110111
+    nullptr,     // 111000
+    nullptr,     // 111001
+    nullptr,     // 111010
+    nullptr,     // 111011
+    nullptr,     // 111100
+    nullptr,     // 111101
+    nullptr,     // 111110
+    nullptr,     // 111111
 };
 
 //----------------------//
@@ -296,6 +300,10 @@ void op_ori(MIPS32_VM& vm, int rs, int rt) {
 
 void op_andi(MIPS32_VM& vm, uns rs, uns rt, uns immediate) {
    vm.GPR[rt] = vm.GPR[rs] & immediate;
+}
+
+void op_xori(MIPS32_VM& vm, uns rs, uns rt, uns immediate) {
+   vm.GPR[rt] = vm.GPR[rs] ^ immediate;
 }
 
 void op_lh(MIPS32_VM& vm, uns base, uns rt, uns offset) {
@@ -320,7 +328,7 @@ const OP MIPS32_VM::op_handlers[] = {
    nullptr, // 001011
    reinterpret_cast<OP>(op_andi), // 001100
    reinterpret_cast<OP>(op_ori), // 001101
-   nullptr, // 001110
+   reinterpret_cast<OP>(op_xori), // 001110
    nullptr, // 001111
    nullptr, // 010000
    nullptr, // 010001
@@ -385,9 +393,9 @@ const OP_TYPE MIPS32_VM::op_types[] = {
    I_Type,        // 001001
    UNIMPLEMENTED, // 001010
    UNIMPLEMENTED, // 001011
-   I_Type, // 001100
+   I_Type,        // 001100
    I_Type,        // 001101
-   UNIMPLEMENTED, // 001110
+   I_Type,        // 001110
    UNIMPLEMENTED, // 001111
    UNIMPLEMENTED, // 010000
    UNIMPLEMENTED, // 010001
