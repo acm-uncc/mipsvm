@@ -295,7 +295,7 @@ void op_addiu(MIPS32_VM& vm, uns rs, uns rt, uns immediate) {
 }
 
 void op_ori(MIPS32_VM& vm, int rs, int rt) {
-   vm.GPR[rt] = vm.GPR[RS] | vm.GPR[rt];
+   vm.GPR[rt] = vm.GPR[rs] | vm.GPR[rt];
 }
 
 void op_andi(MIPS32_VM& vm, uns rs, uns rt, uns immediate) {
